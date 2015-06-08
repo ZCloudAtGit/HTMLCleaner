@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Ivony.Html;
 using Ivony.Html.ExpandedAPI;
@@ -76,7 +77,7 @@ namespace HTMLClean
             {
                 doc.Render(textWriter);
             }
-            htmlString = strBuilder.ToString();
+            htmlString = Regex.Replace(strBuilder.ToString(), @"^\s*$\n|\r", "", RegexOptions.Multiline).TrimEnd();
         }
 
     }
