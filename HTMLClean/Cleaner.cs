@@ -16,57 +16,59 @@ namespace HTMLClean
         {
             var parser = new JumonyParser();
             var doc = parser.Parse(htmlString);
-            var allNodes = doc.DescendantNodes();
-            var nodeToRemove = new List<IHtmlElement>();
-            var nodeToCombineAsText = new List<IHtmlElement>();
-            foreach (var node in allNodes)
+            var allNodes = doc.DescendantNodes().ToList();
+            for (var i=0; i<allNodes.Count; ++i)
             {
-                if (node is IHtmlElement)
-                {
-                    var element = node as IHtmlElement;
-                    if (element.Name == "meta" || element.Name == "style")
-                    {
-                        nodeToRemove.Add(element);
-                    }
-                    else if (element.Name == "p" || element.Name == "li" || element.Name=="h2" || element.Name=="h3" || element.Name=="h4" )
-                    {
-                        nodeToCombineAsText.Add(element);
-                    }
-                    else if(element.Name == "table")
-                    {
-                        element.RemoveAttribute("border");
-                        element.RemoveAttribute("cellpadding");
-                        element.RemoveAttribute("width");
-                        element.RemoveAttribute("bgcolor");
-                    }
-                    else if (element.Name == "td")
-                    {
-                        element.RemoveAttribute("width");
-                        element.RemoveAttribute("valign");
-                    }
-                    else if (element.Name == "ul")
-                    {
-                        element.RemoveAttribute("type");
-                    }
-                    element.RemoveAttribute("class");
-                    element.RemoveAttribute("style");
-                }
-            }
+                var node = allNodes[i];
 
-            for (int i = 0; i < nodeToCombineAsText.Count; ++i)
-            {
-                var node = nodeToCombineAsText[i];
-                var text = node.InnerText();
-                if (string.IsNullOrWhiteSpace(text))
+                if(!(node is IHtmlElement)) continue;
+                var element = node as IHtmlElement;
+                if (element.Name == "meta" || element.Name == "style")
                 {
-                    node.AddElementAfterSelf("br");
-                    node.Remove();
+                    element.Remove();
                 }
-                else
+                else if (element.Name == "p" || element.Name == "li" ||
+                    element.Name == "h2" || element.Name == "h3" || element.Name == "h4" || element.Name == "h1")
                 {
-                    node.ClearNodes();
-                    node.AddTextNode(text);
+                    var text = element.InnerText();
+                    if (string.IsNullOrWhiteSpace(text))
+                    {
+                        if (element.Parent() != null && element.Parent().Name != "td")
+                            element.AddElementAfterSelf("br");
+                        element.Remove();
+                    }
+                    else
+                    {
+                        element.ClearNodes();
+                        element.AddTextNode(text);
+                    }
                 }
+
+                if(!element.IsAllocated()) continue;
+                if (element.Name == "table")
+                {
+                    element.RemoveAttribute("border");
+                    element.RemoveAttribute("cellpadding");
+                    element.RemoveAttribute("width");
+                    element.RemoveAttribute("bgcolor");
+                }
+                else if (element.Name == "td")
+                {
+                    element.RemoveAttribute("width");
+                    element.RemoveAttribute("valign");
+                }
+                else if (element.Name == "ul")
+                {
+                    element.RemoveAttribute("type");
+                }
+                else if (element.Name == "body")
+                {
+                    element.RemoveAttribute("lang");
+                    element.RemoveAttribute("link");
+                    element.RemoveAttribute("vlink");
+                }
+                element.RemoveAttribute("class");
+                element.RemoveAttribute("style");
             }
 
             var strBuilder = new StringBuilder(htmlString.Length);
