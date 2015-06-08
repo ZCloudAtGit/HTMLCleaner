@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Ivony.Html;
+using Ivony.Html.ExpandedAPI;
 using Ivony.Html.Parser;
 
 namespace HTMLClean
@@ -29,7 +30,6 @@ namespace HTMLClean
                     }
                     else if (element.Name == "p" || element.Name == "li" || element.Name=="h2" || element.Name=="h3" || element.Name=="h4" )
                     {
-                        var text = element.InnerText();
                         nodeToCombineAsText.Add(element);
                     }
                     else if(element.Name == "table")
@@ -48,8 +48,8 @@ namespace HTMLClean
                     {
                         element.RemoveAttribute("type");
                     }
-                    element = element.RemoveAttribute("class");
-                    element = element.RemoveAttribute("style");
+                    element.RemoveAttribute("class");
+                    element.RemoveAttribute("style");
                 }
             }
 
@@ -57,8 +57,16 @@ namespace HTMLClean
             {
                 var node = nodeToCombineAsText[i];
                 var text = node.InnerText();
-                node.ClearNodes();
-                node.AddTextNode(text);
+                if (string.IsNullOrWhiteSpace(text))
+                {
+                    node.AddElementAfterSelf("br");
+                    node.Remove();
+                }
+                else
+                {
+                    node.ClearNodes();
+                    node.AddTextNode(text);
+                }
             }
 
             var strBuilder = new StringBuilder(htmlString.Length);
