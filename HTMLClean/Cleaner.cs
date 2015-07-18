@@ -31,7 +31,7 @@ namespace HTMLClean
                 else if (element.Name == "p" || element.Name == "li" ||
                     element.Name == "h2" || element.Name == "h3" || element.Name == "h4" || element.Name == "h1")
                 {
-                    var text = element.InnerText();
+                    var text = HtmlEncoding.HtmlEncode(element.InnerText());
                     if (string.IsNullOrWhiteSpace(text))
                     {
                         if (element.Parent() != null && element.Parent().Name != "td")
