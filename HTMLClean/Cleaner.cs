@@ -29,7 +29,7 @@ namespace HTMLClean
                     element.Remove();
                 }
                 else if (element.Name == "p" || element.Name == "li" ||
-                    element.Name == "h2" || element.Name == "h3" || element.Name == "h4" || element.Name == "h1")
+                    element.Name.StartsWith("h") && element.Name[1] - '0' < 9 && element.Name[1] - '0' > 0)
                 {
                     var text = HtmlEncoding.HtmlEncode(element.InnerText());
                     if (string.IsNullOrWhiteSpace(text))
